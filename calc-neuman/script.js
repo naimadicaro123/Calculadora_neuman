@@ -14,13 +14,33 @@ function converterValor() {
       return;
     }
 
-    const decimal = parseInt(valorDecimal, 10);
-    if (isNaN(decimal)) {
+    const numeroDecimal = Number(valorDecimal);
+    if (isNaN(numeroDecimal)) {
       alert("Insira um número decimal válido!");
       return;
     }
 
-    inputBinario.value = decimal.toString(2);
+    const parteInteira = Math.floor(numeroDecimal);
+    const parteDecimal = numeroDecimal - parteInteira;
+
+    let binario = parteInteira.toString(2);
+
+    if (parteDecimal > 0) {
+      binario += ".";
+      let decimal = parteDecimal;
+      let count = 0;
+
+      while (decimal !== 0 && count < 10) {
+        decimal *= 2;
+        const bit = Math.floor(decimal);
+        binario += bit.toString();
+        decimal -= bit;
+        count++;
+      }
+    }
+
+    inputBinario.value = binario;
+
   } else {
     const valorBinario = inputBinario.value.trim();
 
@@ -29,12 +49,21 @@ function converterValor() {
       return;
     }
 
-    if (!/^[01]+$/.test(valorBinario)) {
-      alert("Insira um número binário válido (apenas 0 e 1)!");
+    if (!/^[01]+(\.[01]+)?$/.test(valorBinario)) {
+      alert("Insira um número binário válido (apenas 0, 1 e ponto opcional)!");
       return;
     }
 
-    inputDecimal.value = parseInt(valorBinario, 2);
+    let [parteInteira, parteDecimal] = valorBinario.split(".");
+    let decimal = parseInt(parteInteira, 2);
+
+    if (parteDecimal) {
+      for (let i = 0; i < parteDecimal.length; i++) {
+        decimal += parseInt(parteDecimal[i], 2) / Math.pow(2, i + 1);
+      }
+    }
+
+    inputDecimal.value = decimal.toString();
   }
 }
 
@@ -56,7 +85,6 @@ function inverterCampos() {
   inputDecimal.value = '';
   inputBinario.value = '';
 }
-
 
 if (modoDecimalParaBinario) {
   inputDecimal.disabled = false;
